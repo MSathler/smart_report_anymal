@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Lista de Missões Realizadas por Data</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 40px;
+        }
+        h1 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern looking font */
+            color: #2c3e50; /* Dark blue color */
+            text-align: center; /* Center-aligns the text */
+            padding: 20px; /* Adds space inside the borders */
+            background-color: #ecf0f1; /* Light grey background */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Subtle shadow */
+            border: 1px solid #bdc3c7; /* Light grey border */
+            margin-bottom: 20px; /* Space below the header */
+        }   
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        .file-item {
+            margin-bottom: 10px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 50px;
+            box-shadow: 0 2px 5px rgba(64, 106, 205, 0.873);
+        }
+        .folder-item {
+            margin-bottom: 10px;
+            background-color: #ffffff; /* Light blue background for folders */
+            padding: 10px;
+            border-radius:  5px;
+            box-shadow: 2px 2px 5px rgb(255, 255, 255);
+            font-weight: bold; /* Makes folder names bold */
+        }
+        a {
+            text-decoration: none;
+            color: #2183e4;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        img {
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .fa-folder, .fa-file-code {
+            color: #e9db0e; /* Standard color for icons */
+            margin-right: 5px; /* Space between the icon and text */
+            font-size: 25px;  /* Larger font size for icons on small screens */
+        }
+
+        .fa-file-code {
+            color: #d35400; /* Orange color specific for HTML files */
+        }
+
+        @media (min-width: 1024px) {
+            .file-item, .folder-item, a {
+                font-size: 18px; /* Larger font size for text on desktop screens */
+            }
+        }
+
+        /* Styles for mobile and tablet screens */
+        @media (max-width: 1023px) {
+            .fa-folder, .fa-file-code {
+                font-size: 30px;  /* Larger font size for icons on mobile and tablet screens */
+            }
+            .file-item, .folder-item, a {
+                font-size: 14px; /* Larger font size for text on mobile and tablet screens */
+            }
+        }
+
+        .voltar-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            background-color: #3498db;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .voltar-btn:hover {
+            background-color: #2980b9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .voltar-btn i {
+            margin-right: 5px;
+        }   
+
+    </style>
+</head>
+<body>
+    <h1>Lista de Missões Realizadas por Data</h1>
+    <ul>
+        {% for file in files %}
+            <li class="{{ 'folder-item' if file.is_folder else 'file-item' }}">
+                <a href="{{ url_for('files', path=file.path) }}">
+                    {% if file.is_folder %}
+                        <i class="fa fa-folder" aria-hidden="true"></i>
+                    {% elif file.name.endswith('.html') %}
+                        <i class="fa fa-file-code" aria-hidden="true"></i>
+                    {% elif file.name.endswith(('.png', '.jpeg', '.jpg')) %}
+                        <img src="{{ url_for('files', path=file.path) }}" alt="{{ file.name }}" style="width: 100px; height: auto;">
+                    {% elif file.name.endswith('.mp4') %}
+                        <video controls style="width: 100%; max-width: 300px;">
+                            <source src="{{ url_for('files', path=file.path) }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    {% elif file.name.endswith('.wav') or file.name.endswith('.mp3') %}
+                        <audio controls>
+                            <source src="{{ url_for('files', path=file.path) }}" type="audio/{{ 'wav' if file.name.endswith('.wav') else 'mpeg' }}">
+                            Your browser does not support the audio element.
+                        </audio>
+                    {% endif %}
+                    {{ file.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        function resizeItems() {
+            var windowWidth = window.innerWidth;
+
+            // Define font size based on window width
+            var fontSize;
+            if (windowWidth >= 1024) {
+                fontSize = windowWidth / 70; // Adjust this factor as needed for desktop screens
+                
+            } else {
+                fontSize = 10000 / windowWidth; // Adjust this factor as needed for mobile and tablet screens
+            }
+            titleFontSize = fontSize * 2;
+            // Apply font size to items
+            var items = document.querySelectorAll('.file-item, .folder-item, a, .fa-folder, .fa-file-code');
+            items.forEach(function(item) {
+                item.style.fontSize = fontSize + 'px';
+            });
+            var title = document.querySelector('h1');
+            title.style.fontSize = titleFontSize + 'px';
+        }
+
+        // Initial resize
+        resizeItems();
+
+        // Listen for window resize events
+        window.addEventListener('resize', function() {
+            resizeItems();
+        });
+    </script>
+
+    {% if path %}
+        <a href="{{ url_for('files', path=path|dirname if path|dirname is not none else '') }}" class="voltar-btn">
+            <i class="fa fa-arrow-left"></i> Voltar
+        </a>
+    {% endif %}
+</body>
+</html>

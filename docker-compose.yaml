@@ -1,0 +1,13 @@
+version: '3.3'
+
+services:
+  anymal_report_cont:
+    image: msathler/anymal_report:v1.6
+    container_name: anymal_report_cont
+    restart: always
+    volumes:
+      - ~/.ros/reports:/root/reports
+    ports:
+      - "8000:8000"
+    stdin_open: true
+    tty: true
